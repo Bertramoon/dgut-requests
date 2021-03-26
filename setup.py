@@ -22,9 +22,9 @@ setup(
     description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/BertraMoon/dgutrequests",
+    url="https://github.com/BertraMoon/dgut-requests",
     project_urls={
-        "Bug Tracker": "https://github.com/BertraMoon/dgutrequests/issues",
+        "Bug Tracker": "https://github.com/BertraMoon/dgut-requests/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -32,6 +32,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
-    packages=find_packages(where="src"),
+    packages=find_packages(),
     python_requires=">=3.7",
 )
