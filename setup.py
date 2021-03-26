@@ -22,9 +22,9 @@ setup(
     description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",
+    url="https://github.com/BertraMoon/dgutrequests",
     project_urls={
-        "Bug Tracker": "https://github.com/pypa/sampleproject/issues",
+        "Bug Tracker": "https://github.com/BertraMoon/dgutrequests/issues",
     },
     classifiers=[
         "Programming Language :: Python :: 3",
