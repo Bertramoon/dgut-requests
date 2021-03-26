@@ -15,7 +15,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="dgut_requests",
+    name="dgut_requests-Bertramoon",
     version="0.0.1",
     author="Bertramoon",
     author_email="bertramoon@126.com",
@@ -32,6 +32,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     package_dir={"": "src"},
-    packages=find_packages(),
+    packages=find_packages(where="src"),
     python_requires=">=3.7",
 )
