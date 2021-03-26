@@ -15,7 +15,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="dgut_requests-Bertramoon",
+    name="dgut_requests",
     version="0.0.1",
     author="Bertramoon",
     author_email="bertramoon@126.com",
