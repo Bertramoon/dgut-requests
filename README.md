@@ -1,3 +1,6 @@
+# dgut-requests
+[![dugt-requests](https://img.shields.io/pypi/v/dgut-requests)](https://pypi.org/project/dgut-requests)
+[![README](https://img.shields.io/badge/README-English-brightgreen.svg)](https://github.com/LKI/chinese-calendar/blob/master/README.en.md)
 # 0. 前言
 
 这是一篇面向编程新手的说明文档，我会通过例子向你展示这个库的功能。如果你不熟悉dgut-requests库，请你一步步跟着文档自己做，并在自己的电脑上尝试运行一下（PS：演示所使用的操作系统是windows 10）。  

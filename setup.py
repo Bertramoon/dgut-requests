@@ -34,5 +34,5 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     python_requires=">=3.7",
-    install_requires=["requests", "lxml"]
+    install_requires=["requests==2.25.1", "lxml==4.6.3"]
 )
