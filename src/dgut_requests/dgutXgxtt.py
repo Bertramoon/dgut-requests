@@ -5,9 +5,8 @@ import lxml.etree
 import json
 import datetime
 
+
 # 登录装饰器
-
-
 def xgxtt_decorator_signin(func):
     '''
     定义一个登录学工系统的装饰器
@@ -23,11 +22,12 @@ def xgxtt_decorator_signin(func):
     return wrapper
 
 
-class DgutXgxtt(dgutLogin):
+class dgutXgxtt(dgutLogin):
     '''
     学工系统类
-    username: str => dgut中央认证用户名
-    password: str => 密码
+
+    username : 中央认证账号用户名
+    password : 中央认证账号密码
     '''
 
     def __init__(self, username, password):
@@ -54,6 +54,10 @@ class DgutXgxtt(dgutLogin):
             },
         }
 
+    def __str__(self):
+        addr = hex(id(self))
+        return f"<dgutXgxtt at 0x{addr[2:].upper().zfill(16)} username is {self.username}>"
+
     @xgxtt_decorator_signin
     def get_workAssignment(self):
         '''
@@ -77,26 +81,25 @@ class DgutXgxtt(dgutLogin):
             for item in works:
                 id_ = item.xpath('./@value')
                 name = item.xpath('./text()')
-                workAssignment.append([id_[0], name[0]])
+                workAssignment.append((id_[0], name[0]))
 
             return {'message': '获取职位信息成功', 'code': 1, 'workAssignment': workAssignment}
 
         except requests.exceptions.ConnectTimeout:
             # 请求超时
             return {'message': '请求超时', 'code': 303}
-        except:
-            # 未知的错误
-            return {'message': '未知的错误', 'code': 5}
 
     @xgxtt_decorator_signin
     def attendance(self, flag: int, workAssignmentId: int = None):
         '''
         学工系统考勤
-        flag:int => 0->模拟到选择职位那一步，用于测试 / 1->签到 / 2->签退
-        workAssignmentId:int => 职位id，为None时自动获取当前的首个职位
+
+        attendance(self, flag[, workAssignmentId])
+        flag : 0->模拟到选择职位那一步，用于测试 / 1->签到 / 2->签退
+        workAssignmentId : 职位id，为None时自动获取当前的首个职位
         '''
         try:
-            all_response = []
+            self.xgxtt['attendance']['response'].append(list())
 
             if not flag in [0, 1, 2]:
                 return {'message': '参数错误：flag只能是0、1或2', 'code': 2}
@@ -121,9 +124,8 @@ class DgutXgxtt(dgutLogin):
             # 请求考勤界面
             response = self.session.get(
                 self.xgxtt['attendance']['url'], headers=self.xgxtt['headers'], timeout=self.timeout)
-            all_response.append(response)
+            self.xgxtt['attendance']['response'][-1].append(response)
             if response.status_code != 200:
-                self.xgxtt['attendance']['response'].append(all_response)
                 return {'message': '考勤页面请求失败', 'code': 300}
 
             # 获取session_token
@@ -143,8 +145,7 @@ class DgutXgxtt(dgutLogin):
             # 发送请求
             response = self.session.post(
                 self.xgxtt['attendance']['url'], headers=self.xgxtt['headers'], data=data, timeout=self.timeout)
-            all_response.append(response)
-            self.xgxtt['attendance']['response'].append(all_response)
+            self.xgxtt['attendance']['response'][-1].append(response)
 
             if response.status_code != 200:
                 return {'message': f'考勤{s}请求失败', 'code': 300}
@@ -164,6 +165,3 @@ class DgutXgxtt(dgutLogin):
         except requests.exceptions.ConnectTimeout:
             # 请求超时
             return {'message': '请求超时', 'code': 303}
-        except:
-            # 未知的错误
-            return {'message': '未知的错误', 'code': 5}
