@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: dgut-requests
-Version: 0.0.5
+Version: 0.0.6
 Summary: 用requests等库封装的东莞理工学院相关系统的爬虫脚本库
 Home-page: https://github.com/BertraMoon/dgut-requests
 Author: Bertramoon
@@ -11,7 +11,7 @@ Description: # dgut-requests
         [![dugt-requests](https://img.shields.io/pypi/v/dgut-requests?color=blue)](https://pypi.org/project/dgut-requests)
         [![Build Status](https://travis-ci.org/BertraMoon/dgut-requests.svg?branch=master)](https://travis-ci.org/BertraMoon/dgut-requests)
         [![README](https://img.shields.io/badge/README-English-brightgreen.svg)](https://github.com/BertraMoon/dgut-requests/blob/master/README.md)
-        [![LICENSE](https://img.shields.io/pypi/l/dgut-requests)](https://github.com/BertraMoon/dgut-requests/blob/master/LICENSE)
+        [![GitHub](https://img.shields.io/github/license/bertramoon/dgut-requests)](https://github.com/BertraMoon/dgut-requests/blob/master/LICENSE)
         # 0. 前言
         
         这是一篇面向编程新手的说明文档，我会通过例子向你展示这个库的功能。如果你不熟悉dgut-requests库，请你一步步跟着文档自己做，并在自己的电脑上尝试运行一下（PS：演示所使用的操作系统是windows 10）。  
