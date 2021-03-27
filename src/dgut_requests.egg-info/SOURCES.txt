@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+setup.py
+src/dgut_requests/__init__.py
+src/dgut_requests/dgutLogin.py
+src/dgut_requests/dgutXgxtt.py
+src/dgut_requests.egg-info/PKG-INFO
+src/dgut_requests.egg-info/SOURCES.txt
+src/dgut_requests.egg-info/dependency_links.txt
+src/dgut_requests.egg-info/requires.txt
+src/dgut_requests.egg-info/top_level.txt
