@@ -20,14 +20,6 @@ def decorator_signin(url):
     return decorator
 
 
-class UrlFormatError(Exception):
-    def __init__(self, url):
-        self.url = url
-
-    def __str__(self):
-        print(f"<{self.url}>不符合url的正确格式")
-
-
 class AuthError(Exception):
     def __init__(self, reason):
         self.reason = reason
@@ -36,9 +28,9 @@ class AuthError(Exception):
         print(f"认证失败,失败原因:{self.reason}")
 
 
-class dgut(object):
+class dgutUser(object):
     '''
-    登录类
+    莞工用户类
 
     username : 中央认证账号用户名
 
@@ -80,7 +72,7 @@ class dgut(object):
         if not isinstance(login_url, str):
             raise TypeError("login_url参数应为str类型")
         if not re.match("^https?://.*?", str(login_url)):
-            raise UrlFormatError(login_url)
+            raise ValueError(f"url<{login_url}>的格式错误")
         # 获取登录token
         response = self.session.get(
             login_url, timeout=self.timeout)
@@ -101,8 +93,9 @@ class dgut(object):
                 # 登录成功
                 # 认证
                 auth_url = result['info']
-                response = self.session.get(auth_url, timeout=self.timeout)
-                if response.status_code == 200:
+                auth_response = self.session.get(
+                    auth_url, timeout=self.timeout)
+                if auth_response.status_code == 200:
                     # 认证成功
                     return response
                 else:
@@ -115,6 +108,26 @@ class dgut(object):
 
         else:
             return response
+
+
+class dgutXgxt(dgutUser):
+    '''
+    莞工学工系统类
+
+    username : 中央认证账号用户名
+
+    password : 中央认证账号密码
+    '''
+
+    def __init__(self, username: str, password: str):
+        dgutUser.__init__(self, username, password)
+        self.session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+            'Host': 'stu.dgut.edu.cn',
+        }
+
+    def __str__(self):
+        dgutUser.__str__(self)
 
     @decorator_signin(xgxt_login)
     def get_workAssignment(self):

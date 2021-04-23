@@ -3,14 +3,15 @@ import requests
 import re
 import json
 from lxml import etree
-import datetime
+from datetime import datetime
 
 xgxt_login = 学工系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/xgxtt.html"
+illness_login = 疫情防控系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/illnessProtectionHome/state/home.html"
 
 
-def decorator_signin(url):
+def decorator_signin(url: str):
     '''
-    定义一个登录装饰器
+    定义一个登录装饰器，url是系统的登录url
     '''
     def decorator(func):
         def wrapper(self, *args, **kargs):
@@ -20,15 +21,11 @@ def decorator_signin(url):
     return decorator
 
 
-class UrlFormatError(Exception):
-    def __init__(self, url):
-        self.url = url
-
-    def __str__(self):
-        print(f"<{self.url}>不符合url的正确格式")
-
-
 class AuthError(Exception):
+    '''
+    认证错误类
+    '''
+
     def __init__(self, reason):
         self.reason = reason
 
@@ -36,9 +33,9 @@ class AuthError(Exception):
         print(f"认证失败,失败原因:{self.reason}")
 
 
-class dgut(object):
+class dgutUser(object):
     '''
-    登录类
+    莞工用户类
 
     username : 中央认证账号用户名
 
@@ -79,8 +76,8 @@ class dgut(object):
         # 检查url
         if not isinstance(login_url, str):
             raise TypeError("login_url参数应为str类型")
-        if not re.match("^https?://.*?", str(login_url)):
-            raise UrlFormatError(login_url)
+        if not re.match(r"^https?://(.*?\.){1,}.*", str(login_url)):
+            raise ValueError(f"url<{login_url}>的格式错误")
         # 获取登录token
         response = self.session.get(
             login_url, timeout=self.timeout)
@@ -101,10 +98,11 @@ class dgut(object):
                 # 登录成功
                 # 认证
                 auth_url = result['info']
-                response = self.session.get(auth_url, timeout=self.timeout)
-                if response.status_code == 200:
+                auth_response = self.session.get(
+                    auth_url, timeout=self.timeout)
+                if auth_response.status_code == 200:
                     # 认证成功
-                    return response
+                    return auth_response
                 else:
                     raise AuthError(f'认证{auth_url}失败')
             else:
@@ -115,6 +113,26 @@ class dgut(object):
 
         else:
             return response
+
+
+class dgutXgxt(dgutUser):
+    '''
+    莞工学工系统类
+
+    username : 中央认证账号用户名
+
+    password : 中央认证账号密码
+    '''
+
+    def __init__(self, username: str, password: str):
+        dgutUser.__init__(self, username, password)
+        self.session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+            'Host': 'stu.dgut.edu.cn',
+        }
+
+    def __str__(self):
+        dgutUser.__str__(self)
 
     @decorator_signin(xgxt_login)
     def get_workAssignment(self):
@@ -182,7 +200,7 @@ class dgut(object):
         # 发送请求
         response = self.session.post(
             "http://stu.dgut.edu.cn/student/partwork/attendance.jsp", data=data, timeout=self.timeout)
-        attendance_time = datetime.datetime.now()
+        attendance_time = datetime.now()
         return {
             'message': f'{s}成功',
             'code': 1,
@@ -191,3 +209,66 @@ class dgut(object):
                 'time': attendance_time,
             }
         }
+
+
+class dgutIllness(dgutUser):
+    '''
+    莞工疫情防控系统类
+
+    username : 中央认证账号用户名
+
+    password : 中央认证账号密码
+    '''
+
+    def __init__(self, username: str, password: str):
+        dgutUser.__init__(self, username, password)
+        self.session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+            'Host': 'yqfk.dgut.edu.cn',
+        }
+
+    @decorator_signin(illness_login)
+    def report(self):
+        # 1、获取access_token
+        response = self.signin(illness_login)
+        access_token = re.search(
+            r'access_token=(.*)', response.url, re.S)
+        if not access_token:
+            raise AuthError("获取access_token失败")
+        access_token = access_token.group(1)
+        self.session.headers['authorization'] = 'Bearer ' + access_token
+
+        # 2、获取并修改数据
+        response = self.session.get(
+            'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo')
+        if json.loads(response.text)['code'] != 200:
+            raise AuthError("获取个人基本信息失败")
+        data = json.loads(response.text)['info']
+        pop_list = [
+            'can_submit',
+            'class_id',
+            'class_name',
+            'continue_days',
+            'create_time',
+            'current_area',
+            'current_city',
+            'current_country',
+            'current_district',
+            'current_province',
+            'faculty_id',
+            'faculty_name',
+            'id',
+            'msg',
+            'name',
+            'username',
+            'whitelist',
+            'importantAreaMsg',
+        ]
+        for key in pop_list:
+            if data.get(key):
+                data.pop(key)
+
+        # 3、提交数据
+        response = self.session.post(
+            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
+        return json.loads(response.text)
