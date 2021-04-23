@@ -6,7 +6,7 @@
 # Author: Bertramoon
 # Mail: bertramoon@126.com
 # Created Date:  2021-3-26
-# Modified Date:  2021-4-23
+# Modified Date:  2021-4-24
 #############################################
 
 
@@ -17,7 +17,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="dgut_requests",
-    version="0.1.2",
+    version="0.1.3",
     author="Bertramoon",
     author_email="bertramoon@126.com",
     description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库",

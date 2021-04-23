@@ -9,7 +9,7 @@
 
 dgut-requests是一款适用于东莞理工学院系统的Python库（要求Python3.7及以上版本），是对基本请求库进行再抽象并实现所需功能，采用面向切面编程(AOP)，目前基于该库已做出勤工俭学自动考勤、疫情防控自动打卡、出入校快速申请等小应用。 
 
-这是一篇面向编程新手的帮助文档，我会通过例子向你展示这个库的功能。如果你不熟悉dgut-requests库，请从头开始完整阅读本文档，并在自己的电脑上尝试运行一下（PS：演示所使用的操作系统是windows 10）。如果你有编程基础，并且对Python语言比较熟悉，那可以直接阅读[基本用法](#2-基本用法)和[高级用法](#3-高级用法)。 
+这是一篇面向编程新手的帮助文档，我会通过例子向你展示这个库的功能。如果你不熟悉dgut-requests库，请从头开始完整阅读本文档，并在自己的电脑上尝试运行一下（PS：演示所使用的操作系统是windows 10）。如果你有编程基础，并且对Python语言比较熟悉，那可以直接阅读[说明文档](#4-说明文档)。 
 
 # 1. 安装
 请先确保自己已经安装了pip。如果你不确定是否安装了pip，请打开cmd命令窗口并输入`pip`，如果像下面这样，说明你已安装pip。  
@@ -258,7 +258,7 @@ print(u.report())
 
 输出结果
 ```
-{'code': 200, 'message': '已提交', 'info': 0}
+{'code': 200, 'message': '提交成功', 'info': 0}
 {'code': 400, 'message': '今日已提交，请勿重复操作', 'info': []}
 ```
 
@@ -367,30 +367,91 @@ has cookies
 ## 3.3. 基于`dgutUser`开发新系统，基于现有系统开发新功能
 开发者可基于`dgutUser`及其子类进行新功能的开发，继承`dugtUser`及其子类，然后用装饰函数`decorator_signin`装饰新功能函数。这样，开发者只需要关心功能的实现而不需要关心登录功能。
 
+# 4. 说明文档
+## 4.1. `class AuthError`
+认证错误类，在认证失败时会抛出该异常。
+```python
+from dgut_requests.dgut import *
+
+try:
+    u = dgutUser('123', '456')
+    u.signin(xgxt_login)
+except AuthError as e:
+    print(e)
+```
+
+## 4.2. `class dgutUser`
+### 4.2.1. 属性(`attribute`)
+|       name |           type            | means            |
+| ---------: | :-----------------------: | :--------------- |
+|   username |            str            | DGUT中央认证账号 |
+| __password |            str            | DGUT中央认证密码 |
+|    session | requests.sessions.Session | 会话             |
+
+### 4.2.2. 方法(`method`)
+|                                           name | params                                                     |                      return | means                  |
+| ---------------------------------------------: | :--------------------------------------------------------- | --------------------------: | :--------------------- |
+| `__init__(self, username: str, password: str)` | username: DGUT中央认证账号<br>__password: DGUT中央认证密码 |                  not return | 构造函数               |
+|                 `signin(self, login_url: str)` | login_url: 登录url，以http://或https://开头                | response: requests.Response | 登录函数，返回结果响应 |
 
 
-# 4. 相比0.0.x版本的改动
+## 4.3. `class dgutXgxt`
+### 4.3.1. 属性(`attribute`)
+同[4.2.1](#421-属性attribute)
 
-## 4.1. 代码重构，简洁易维护
+### 4.3.2. 方法(`method`)
+|                                                        name | params                                                                                                                                                                         | return | means                          |
+| ----------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----: | :----------------------------- |
+|                                  `get_workAssignment(self)` |                                                                                                                                                                                |   list | 获取考勤职位信息，返回一个列表 |
+| `attendance(self, flag: int, workAssignmentId: int = None)` | flag: 1表示签到，2表示签退<br>workAssignmentId: 考勤职位ID，缺省或None时自动调用`get_workAssignment(self)`获取第一个职位信息作为参数，若没有任何职位信息则抛出`ValueError`异常 |   dict | 考勤函数，返回一个字典结果     |
+
+其他方法同[4.2.2](#422-方法method)
+
+## 4.4. `class dgutIllness`
+### 4.4.1. 属性(`attribute`)
+同[4.2.1](#421-属性attribute)
+
+### 4.4.1. 方法(`method`)
+|           name | params | return | means                          |
+| -------------: | :----- | -----: | :----------------------------- |
+| `report(self)` |        |   dict | 进行疫情防控每日打卡，返回结果 |
+
+其他方法同[4.2.2](#422-方法method)
+
+## 4.5. 其他属性/变量
+|                           name | type  | means                 |
+| -----------------------------: | :---: | :-------------------- |
+|        xgxt_login/学工系统登录 |  str  | 学工系统的登录url     |
+| illness_login/疫情防控系统登录 |  str  | 疫情防控系统的登录url |
+
+
+## 4.6. 其他方法
+|                    name | params       |   return | means                                                                                                                         |
+| ----------------------: | :----------- | -------: | :---------------------------------------------------------------------------------------------------------------------------- |
+| `decorator_signin(url)` | url: 登录url | function | `signin`方法的装饰函数，在功能函数前面输入`@decorator_signin(url)`，就可以实现调用功能函数前会先验证登录，是AOP编程的具体实现 |
+
+# 5. 相比0.0.x版本的改动
+
+## 5.1. 代码重构，简洁易维护
 - 对0.0.x版本的代码进行了重构，代码量缩减50%
 - 将`dgutLogin.py`和`dgutXgxtt.py`合并为`dgut.py`
 - classdgutLogin重命名为class dgutUser，classdgutXgxtt重命名为class dgutXgxt
 - 使用装饰函数实现AOP编程，分离出登录功能，便于维护代码和开发新功能
 
-## 4.2. 只抛出异常，不处理异常
+## 5.2. 只抛出异常，不处理异常
 - 将异常的处理权交给开发者，一方面减少开发者学习错误码的时间成本，另一方面也符合轻量级的定位
 
-## 4.3. 增加疫情防控系统类`class dgutIllness`
+## 5.3. 增加疫情防控系统类`class dgutIllness`
 - 增加`class dgutIllness`，实现疫情防控打卡功能
 - 仅用于爬虫学习和防止忘记打卡，切勿依赖自动执行而轻视打卡
 
-## 4.4. 形成轻量级的功能开发框架
+## 5.4. 形成轻量级的功能开发框架
 - 对于使用者来说，简单易懂
 - 对于开发者来说，可以减少大量开发时间，代码复用性强，仅实现功能业务逻辑即可。若基于dgutUser进行开发，不需要管理登录模块。若基于其他类进行开发，则不仅不需要管理登录模块，同时还可以调用已有的功能函数进行开发，随用随取，简单明了。
 
 
 
-# 5. 目前已有的项目示例
+# 6. 目前已有的项目示例
 - 勤工俭学自动考勤助手  
   - [github仓库](https://github.com/bertramoon/Auto_Attendance)  
   - [gitee仓库](https://gitee.com/bertramoon/Auto_Attendance)  

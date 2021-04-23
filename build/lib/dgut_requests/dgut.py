@@ -62,10 +62,6 @@ class dgutUser(object):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
         }
 
-    def __str__(self):
-        addr = hex(id(self))
-        return f"<dgutLogin at 0x{addr[2:].upper().zfill(16)} username is {self.username}>"
-
     def signin(self, login_url: str):
         '''
         登录函数
@@ -130,9 +126,6 @@ class dgutXgxt(dgutUser):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
             'Host': 'stu.dgut.edu.cn',
         }
-
-    def __str__(self):
-        dgutUser.__str__(self)
 
     @decorator_signin(xgxt_login)
     def get_workAssignment(self):
