@@ -3,10 +3,11 @@ import requests
 import re
 import json
 from lxml import etree
-from datetime import datetime
+from datetime import datetime, timedelta
 
 xgxt_login = 学工系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/xgxtt.html"
 illness_login = 疫情防控系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/illnessProtectionHome/state/home.html"
+jwxt_login = 教务系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/jwyd.html"
 
 
 def decorator_signin(url: str):
@@ -265,3 +266,80 @@ class dgutIllness(dgutUser):
         response = self.session.post(
             "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
         return json.loads(response.text)
+
+
+class dgutJwxt(dgutUser):
+    def __init__(self, username: str, password: str):
+        dgutUser.__init__(self, username, password)
+        self.session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+            'Host': 'jwyd.dgut.edu.cn',
+        }
+
+    @decorator_signin(jwxt_login)
+    def get_score(self, score_type: int = 1, course_type: int = 3, time_range: int = 3, **kwargs):
+        '''
+        获取成绩信息
+
+        score_type: 成绩类型: 1=>原始成绩（默认） | 2=>有效成绩
+
+        course_type: 课程类型: 1=>主修 | 2=>辅修 | 3=>主修和辅修（默认）
+
+        time_range: 时间范围选择: 1=>入学以来 | 2=>学年 | 3=>学期（默认）
+        '''
+        # 字段合法检测
+        if not score_type in [1, 2]:
+            raise ValueError(f"score_type取值只能是1|2，而你的取值为{score_type}")
+        if not course_type in [1, 2, 3]:
+            raise ValueError(f"course_type取值只能是1|2|3，而你的取值为{course_type}")
+        if not time_range in [1, 2, 3]:
+            raise ValueError(f"time_range取值只能是1|2|3，而你的取值为{time_range}")
+        data = {
+            "sjxz": "sjxz" + str(time_range),  # 时间选择，1-入学以来，2-学年，3-学期
+            # 原始有效，指原始成绩或有效成绩，yscj-原始成绩，yxcj-有效成绩
+            "ysyx": "yscj" if score_type == 1 else "yxcj",
+            "zx": 1 if not course_type == 2 else 0,  # 主修，1-选择，0-不选择
+            "fx": 1 if not course_type == 3 else 0,  # 辅修，1-选择，0-不选择
+            # xn-xn1学年第(xq+1)学期
+            "xn": "",
+            "xn1": "",
+            "xq": "",
+            "ysyxS": "on",
+            "sjxzS": "on",
+            "zxC": "on",
+            "fxC": "on",
+            "menucode_current": "",
+        }
+        if time_range > 1:
+            if kwargs.get('xn'):
+                xn = kwargs.get('xn')
+            else:
+                now = datetime.utcnow()+timedelta(hours=8)
+                xn = now.year if now.month >= 9 else now.year-1
+
+            if not isinstance(xn, int) and 1970 <= xn <= 9999:
+                raise ValueError(
+                    f"xn的类型应是int且取值范围为[1970, 9999]，而不应该是{xn}: {type(xn)}")
+            data['xn'] = xn
+            data['xn1'] = xn+1
+
+            if time_range > 2:
+                if kwargs.get('xq'):
+                    xq = kwargs.get('xq')
+                else:
+                    xq = 1 if now.month >= 9 else 2
+                if not isinstance(xq, int) and xq in [1, 2]:
+                    raise ValueError(
+                        f"xq的类型应是int且只能是1|2，而不应该是{xq}: {type(xq)}")
+                xq -= 1
+                data['xq'] = xq
+
+        # 发送请求
+        responsse = self.session.post(
+            "http://jwyd.dgut.edu.cn/student/xscj.stuckcj_data.jsp", data=data)
+
+        # 解析
+        html = etree.HTML(responsse.text)
+        tr = html.xpath('//table[position() mod 2 = 0]/tbody/tr')
+        score_list = [item.xpath('./td/text()') for item in tr]
+        return score_list

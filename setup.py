@@ -17,10 +17,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="dgut_requests",
-    version="0.1.3",
+    version="0.1.0",
     author="Bertramoon",
     author_email="bertramoon@126.com",
-    description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库",
+    description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库，亦是东莞理工学院第一个pypi的爬虫库",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/BertraMoon/dgut-requests",
