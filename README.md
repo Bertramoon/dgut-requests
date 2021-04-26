@@ -612,6 +612,7 @@ except AuthError as e:
 | -----------------------------: | :---: | :-------------------- |
 |        xgxt_login/学工系统登录 |  str  | 学工系统的登录url     |
 | illness_login/疫情防控系统登录 |  str  | 疫情防控系统的登录url |
+|        jwxt_login/教务系统登录 |  str  | 教务系统的登录url     |
 
 
 ## 4.7. 其他方法
@@ -630,8 +631,9 @@ except AuthError as e:
 ## 5.2. 只抛出异常，不处理异常
 - 将异常的处理权交给开发者，一方面减少开发者学习错误码的时间成本，另一方面也符合轻量级的定位
 
-## 5.3. 增加疫情防控系统类`class dgutIllness`
+## 5.3. 增加疫情防控系统类`class dgutIllness`和教务系统类`class dgutJwxt`
 - 增加`class dgutIllness`，实现疫情防控打卡功能
+- 增加`class dgutJwxt`，实现成绩信息的获取
 - 仅用于爬虫学习和防止忘记打卡，切勿依赖自动执行而轻视打卡
 
 ## 5.4. 形成轻量级的功能开发框架
