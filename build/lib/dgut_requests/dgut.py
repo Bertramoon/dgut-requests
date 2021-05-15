@@ -222,7 +222,7 @@ class dgutIllness(dgutUser):
         }
 
     @decorator_signin(illness_login)
-    def report(self):
+    def report(self, longitude: float = 113.87651, latitude: float = 22.90701):
         # 1、获取access_token
         response = self.signin(illness_login)
         access_token = re.search(
@@ -262,7 +262,11 @@ class dgutIllness(dgutUser):
             if data.get(key):
                 data.pop(key)
 
-        # 3、提交数据
+        # 获取GPS位置
+        response = self.session.post(
+            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
+
+        # 4、提交数据
         response = self.session.post(
             "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
         return json.loads(response.text)

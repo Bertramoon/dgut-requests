@@ -1,7 +1,7 @@
 # dgut-requests
 [![dugt-requests](https://img.shields.io/pypi/v/dgut-requests?color=blue)](https://pypi.org/project/dgut-requests)
 [![Build Status](https://travis-ci.org/BertraMoon/dgut-requests.svg?branch=master)](https://travis-ci.org/BertraMoon/dgut-requests)
-[![README](https://img.shields.io/badge/README-English-brightgreen.svg)](https://github.com/BertraMoon/dgut-requests/blob/master/README.md)
+[![README](https://img.shields.io/badge/README-Chinese-brightgreen)](https://github.com/BertraMoon/dgut-requests/blob/master/README.md)
 [![GitHub](https://img.shields.io/github/license/bertramoon/dgut-requests)](https://github.com/BertraMoon/dgut-requests/blob/master/LICENSE)  
 
 
@@ -133,6 +133,17 @@ Type "help", "copyright", "credits" or "license" for more information.
 但是更建议这样
 ```
 >>> from dgut_requests.dgut import dgutUser, dgutXgxt, dgutIllness
+>>> dgutUser
+<class 'dgut_requests.dgut.dgutUser'>
+>>> dgutXgxt
+<class 'dgut_requests.dgut.dgutXgxt'>
+>>> dgutIllness
+<class 'dgut_requests.dgut.dgutIllness'>
+>>>
+```
+如果想要更加方便的话，可以这样
+```
+>>> from dgut_requests.dgut *
 >>> dgutUser
 <class 'dgut_requests.dgut.dgutUser'>
 >>> dgutXgxt
@@ -648,9 +659,19 @@ except AuthError as e:
   - [gitee仓库](https://gitee.com/bertramoon/Auto_Attendance)  
 
 - 疫情防控自动打卡  
-  - 在github上运行不稳定，目前用在windows本地任务中，应该是可以托管到gitee上面的但是gitee的要收费。  
+  - [github仓库](https://github.com/bertramoon/Auto_Report)  
+  - [gitee仓库](https://gitee.com/bertramoon/report_test)  
   
 - 出入校快速申请
-  - 目前来看已经没有这个必要了，事务中心PC端移动端申请都很快。  
+  - 目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)  
 
 - 有需求或技术方面的问题请联系作者Email：bertramoon@126.com
+
+
+# 7. 更新日志
+
+## v0.1.1 - 2021-5-16
+主要解决了调用dgutIllness中report()方法出现提交异常的情况。此外，对READEME.md文档也进行了部分更新。
+
+## v0.1.0 - 2021-4-24
+重大更新，重构代码。具体请查看`5. 相比0.0.x版本的改动`
