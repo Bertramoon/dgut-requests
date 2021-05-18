@@ -263,8 +263,10 @@ class dgutIllness(dgutUser):
                 data.pop(key)
 
         # 获取GPS位置
-        response = self.session.post(
-            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
+        response = self.session.get(
+            "https://yqfk.dgut.edu.cn/home/base_info/getGPSAddress", params={
+                'longitude': longitude,
+                'latitude': latitude})
 
         # 4、提交数据
         response = self.session.post(
