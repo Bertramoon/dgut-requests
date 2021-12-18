@@ -174,9 +174,21 @@ print(response.text)
 输出结果
 
 ```
-<dgutLogin at 0x0000021131018160 username is 201841416100>
+<dgut_requests.dgut.dgutUser object at 0x0000012546350850>
 <Response [200]>
-{"message":"验证通过","code":1,"info":"http:\/\/stu.dgut.edu.cn\/caslogin.jsp?token=xgxtt-z-25b746cd4fa5afdfba64c44e218ad853"}
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+<html>
+<head>
+<title>学生信息管理系统</title>
+<meta http-equiv="refresh" content="0;URL=homepage.jsp">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body>
+正在进入首页
+</body>
+</html>
 ------------------------------
 <Response [200]>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -282,43 +294,37 @@ from dgut_requests.dgut import dgutJwxt
 u = dgutJwxt("201841416100", "123456")
 # 现在是2021年4月，即2020-2021学年第二学期
 print(f"获取本学期的原始成绩")
-result = u.get_score()
-[print(*i) for i in result]
-print(f"共有{len(result)}个结果")
+for i, item in enumerate(u.get_score(), 1):
+    print(i, *item)
 print("-"*30)
 
 print("获取2020-2021学年第一学期的原始成绩")
 # xn=2020代表2020-2021学年
 # xq=1代表第一学期，xq=2代表第二学期
-result = u.get_score(xn=2020, xq=1)
-[print(*i) for i in result]
-print(f"共有{len(result)}个结果")
+for i, item in enumerate(u.get_score(xn=2020, xq=1), 1):
+    print(i, *item)
 print("-"*30)
 
 print("获取2020-2021学年第一学期的有效成绩")
-result = u.get_score(score_type=2, xn=2020, xq=1)
-[print(*i) for i in result]
-print(f"共有{len(result)}个结果")
+for i, item in enumerate(u.get_score(score_type=2, xn=2020, xq=1), 1):
+    print(i, *item)
 print("-"*30)
 
 print("获取2020-2021学年第一学期的主修课程的有效成绩")
-result = u.get_score(score_type=2, course_type=1, xn=2020, xq=1)
-[print(*i) for i in result]
-print(f"共有{len(result)}个结果")
+for i, item in enumerate(u.get_score(score_type=2, course_type=1, xn=2020, xq=1), 1):
+    print(i, *item)
 print("-"*30)
 
 print("获取2019-2020学年的原始成绩")
 # time_range=2代表按学年查询（1：入学以来 | 2：按学年 | 3：按学期）
 # xn=2019代表2019-2020学年
-result = u.get_score(time_range=2, xn=2019)
-[print(*i) for i in result]
-print(f"共有{len(result)}个结果")
+for i, item in enumerate(u.get_score(time_range=2, xn=2019), 1):
+    print(i, *item)
 print("-"*30)
 
 print("获取入学以来的有效成绩")
-result = u.get_score(time_range=1, score_type=2)
-[print(*i) for i in result]
-print(f"共有{len(result)}个结果")
+for i, item in enumerate(u.get_score(time_range=1, score_type=2), 1):
+    print(i, *item)
 print("-"*30)
 
 # get_score(score_type: int = 1, course_type: int = 3, time_range: int = 3, **kwargs)
@@ -343,7 +349,6 @@ print("-"*30)
 5 [0410091]操作系统安全 3.0 专业课/限选课 初修 考查 初修取得 xx
 6 [0410226]身份认证与访问控制 2.0 专业课/必修课 初修 考查 初修取得 xx
 7 [0410241]NISP认证体系 2.0 专业课/必修课 初修 考查 初修取得 xx
-共有7个结果
 ------------------------------
 获取2020-2021学年第一学期的有效成绩
 1 [0710007]形势与政策5 0.0 公共课/必修课 初修 考试 xx 0.0 xx xx
@@ -353,7 +358,6 @@ print("-"*30)
 5 [0410091]操作系统安全 3.0 专业课/限选课 初修 考查 xx 3.0 xx xx
 6 [0410226]身份认证与访问控制 2.0 专业课/必修课 初修 考查 xx 2.0 xx xx
 7 [0410241]NISP认证体系 2.0 专业课/必修课 初修 考查 xx 2.0 xx xx
-共有7个结果
 ------------------------------
 获取2020-2021学年第一学期的主修课程的有效成绩
 1 [0710007]形势与政策5 0.0 公共课/必修课 初修 考试 xx 0.0 xx xx
@@ -363,7 +367,6 @@ print("-"*30)
 5 [0410091]操作系统安全 3.0 专业课/限选课 初修 考查 xx 3.0 xx xx
 6 [0410226]身份认证与访问控制 2.0 专业课/必修课 初修 考查 xx 2.0 xx xx
 7 [0410241]NISP认证体系 2.0 专业课/必修课 初修 考查 xx 2.0 xx xx
-共有7个结果
 ------------------------------
 获取2019-2020学年的原始成绩
 1 [14510300]计算机组成原理 4.0 专业基础课/必修课 初修 考试 初修取得 xx
@@ -390,7 +393,6 @@ print("-"*30)
 10 [4100084]操作系统 4.0 专业基础课/必修课 初修 考试 初修取得 xx
 11 [4100085]数据库系统原理 4.0 专业基础课/必修课 初修 考试 初修取得 xx
 12 [4100086]计算机网络 4.0 专业基础课/必修课 初修 考试 初修取得 xx
-共有24个结果
 ------------------------------
 获取入学以来的有效成绩
 1 [19510070]中国近现代史纲要 2.0 公共课/必修课 初修 考试 xx 2.0 xx xx
@@ -448,10 +450,9 @@ print("-"*30)
 5 [0410091]操作系统安全 3.0 专业课/限选课 初修 考查 xx 3.0 xx xx
 6 [0410226]身份认证与访问控制 2.0 专业课/必修课 初修 考查 xx 2.0 xx xx
 7 [0410241]NISP认证体系 2.0 专业课/必修课 初修 考查 xx 2.0 xx xx
-共有55个结果
 ------------------------------
 ```
-首先创建一个`dgutJwxt`对象，然后调用`get_score`方法返回一个成绩结果列表，该列表的元素由多个列表组成，每个列表对应某一科目的成绩。  
+首先创建一个`dgutJwxt`对象，然后调用`get_score`方法返回一个成绩结果的生成器，该生成器的每个元素对应着一条记录。  
 有兴趣的朋友可以研究一下openpyxl库，制作一个生成学年综测excel表格的脚本。
 
 # 3. 高级用法
@@ -612,9 +613,9 @@ except AuthError as e:
 同[4.2.1](#421-属性attribute)
 
 ### 4.5.2. 方法(`method`)
-|                                                                                        name | params                                                                                                                                                                                                                                                                                                 | return | means                          |
-| ------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----: | :----------------------------- |
-| `get_score(self, score_type: int = 1, course_type: int = 3, time_range: int = 3, **kwargs)` | sscore_type: 成绩类型: 1=>原始成绩（默认） / 2=>有效成绩<br>course_type: 课程类型: 1=>主修 / 2=>辅修 / 3=>主修和辅修（默认）<br>time_range: 时间范围选择: 1=>入学以来 / 2=>学年 / 3=>学期（默认）<br>**kwargs: 补充参数，有xn和xq两个参数，都是int类型。xn: 学年，取值[1970, 9999]; xq: 学期，取值1或2 |   list | 进行疫情防控每日打卡，返回结果 |
+|                                                                                        name | params                                                                                                                                                                                                                                                                                                 |    return | means                        |
+| ------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------: | :--------------------------- |
+| `get_score(self, score_type: int = 1, course_type: int = 3, time_range: int = 3, **kwargs)` | sscore_type: 成绩类型: 1=>原始成绩（默认） / 2=>有效成绩<br>course_type: 课程类型: 1=>主修 / 2=>辅修 / 3=>主修和辅修（默认）<br>time_range: 时间范围选择: 1=>入学以来 / 2=>学年 / 3=>学期（默认）<br>**kwargs: 补充参数，有xn和xq两个参数，都是int类型。xn: 学年，取值[1970, 9999]; xq: 学期，取值1或2 | generator | 查询成绩，返回一个生成器对象 |
 
 其他方法同[4.2.2](#422-方法method)
 
@@ -669,6 +670,19 @@ except AuthError as e:
 
 
 # 7. 更新日志
+
+## v0.1.5 - 2021-12-18
+
+- 疫情防控打卡时会检测是否已打卡，已打卡则返回打卡成功的信息{'code': 400, 'message': message, 'info': []}，减少无故提交次数，避免被检测
+
+## v0.1.4 - 2021-9-5
+
+- 将返回成绩结果改为生成器
+- 修正了部分注释
+- 稍微修改了一下代码中不够简洁的部分
+
+## v0.1.3 - 2021-7-1
+修复了显示`{'code': 400, 'message': '选定的 核酸检测结果 是无效的', 'info': []}`的问题
 
 ## v0.1.2 - 2021-5-19
 修改了上次更新时代码错误产生的无法正常打卡的问题，并更新了README.md。
