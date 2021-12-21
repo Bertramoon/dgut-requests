@@ -671,6 +671,10 @@ except AuthError as e:
 
 # 7. 更新日志
 
+## v1.1 - 2021-12-22
+
+- `dgutIllness`的`report`方法代码微修改
+
 ## v1.0 - 2021-12-21
 
 - 疫情防控打卡系统更新。注意，因接口改变，`dgutIllness`的`report`方法有所变化，不再接收任何参数

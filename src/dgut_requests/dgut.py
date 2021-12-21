@@ -2,7 +2,6 @@
 from typing import Generator
 import requests
 import re
-import json
 from lxml import etree
 from datetime import datetime, timedelta
 from functools import wraps
@@ -244,7 +243,7 @@ class dgutIllness(dgutUser):
             raise AuthError("获取个人基本信息失败")
         data = response.json()
         if "已打卡" in data.get("message"):
-            return {"message": data.get("message")}
+            return {"message": "今日已打卡"}
         pop_list = [
             'is_en',
             'is_important_area_people',
@@ -374,7 +373,5 @@ class dgutJwxt(dgutUser):
             raise HTTPError(f"[HTTP响应错误] HTTP code {response.status_code}")
         for td in etree.HTML(response.text).xpath('//table[position() mod 2 = 0]/tbody/tr'):
             yield td.xpath('./td[position()>1]/text()')
-
-
 
 
