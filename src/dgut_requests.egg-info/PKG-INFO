@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: dgut-requests
-Version: 0.1.5
+Version: 1.0
 Summary: 用requests等库封装的东莞理工学院相关系统的爬虫脚本库，亦是东莞理工学院第一个pypi的爬虫库
 Home-page: https://github.com/BertraMoon/dgut-requests
 Author: Bertramoon
@@ -298,8 +298,8 @@ print(u.report())
 
 输出结果
 ```
-{'code': 200, 'message': '提交成功', 'info': 0}
-{'code': 400, 'message': '今日已提交，请勿重复操作', 'info': []}
+{'message': '您今天已打卡成功！已连续打卡688天！'}
+{'message': '您今天已打卡成功！已连续打卡688天！'}
 ```
 
 与前面一样，先构造一个`dgutIllness`对象，然后调用`report()`方法即可完成打卡。该功能仅用于爬虫学习及防止忘记打卡，疫情期间切勿轻视打卡。
@@ -621,7 +621,7 @@ except AuthError as e:
 ### 4.4.2. 方法(`method`)
 |                                                                     name | params                            | return | means                          |
 | -----------------------------------------------------------------------: | :-------------------------------- | -----: | :----------------------------- |
-| `report(self, longitude: float = 113.87651, latitude: float = 22.90701)` | longitude: 经度<br>latitude: 纬度 |   dict | 进行疫情防控每日打卡，返回结果 |
+| `report(self)` | - |   dict | 进行疫情防控每日打卡，返回结果 |
 
 其他方法同[4.2.2](#422-方法method)
 
@@ -678,7 +678,7 @@ except AuthError as e:
 
 - 疫情防控自动打卡  
   - [github仓库](https://github.com/bertramoon/Auto_Report)  
-  - [gitee仓库](https://gitee.com/bertramoon/report_test)  
+  - [gitee仓库](https://gitee.com/bertramoon/dgut-autoreport-configure)  
   
 - 出入校快速申请
   - 目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)  
@@ -688,9 +688,14 @@ except AuthError as e:
 
 # 7. 更新日志
 
+## v1.0 - 2021-12-21
+
+- 疫情防控打卡系统更新。注意，因接口改变，`dgutIllness`的`report`方法有所变化，不再接收任何参数
+- 随着版本更新，将版本号正式定为1.0，此后每次小的迭代增加0.1，大的更新向上取整
+
 ## v0.1.5 - 2021-12-18
 
-- 疫情防控打卡时会检测是否已打卡，已打卡则返回打卡成功的信息{'code': 400, 'message': message, 'info': []}，减少无故提交次数，避免被检测
+- 疫情防控打卡时会检测是否已打卡，已打卡则返回打卡成功的信息`{'code': 400, 'message': message, 'info': []}`，减少无故提交次数，避免被检测
 
 ## v0.1.4 - 2021-9-5
 

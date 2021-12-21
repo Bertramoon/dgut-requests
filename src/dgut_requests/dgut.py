@@ -6,11 +6,11 @@ import json
 from lxml import etree
 from datetime import datetime, timedelta
 from functools import wraps
-
+from urllib.parse import urlparse
 from requests.exceptions import HTTPError
 
 xgxt_login = 学工系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/xgxtt.html"
-illness_login = 疫情防控系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/illnessProtectionHome/state/home.html"
+illness_login = 疫情防控系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/yqfkdaka/state/%2Fhome.html"
 jwxt_login = 教务系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/jwyd.html"
 
 
@@ -213,68 +213,85 @@ class dgutIllness(dgutUser):
         dgutUser.__init__(self, username, password)
         self.session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
-            'Host': 'yqfk.dgut.edu.cn',
+            "Origin": "https://yqfk-daka.dgut.edu.cn",
+            "Referer": "https://yqfk-daka.dgut.edu.cn/",
+            # "Host": "yqfk-daka-api.dgut.edu.cn"
         }
 
-    # @decorator_signin(illness_login)
-    def report(self, longitude: float = 113.87651, latitude: float = 22.90701) -> dict:
+    @decorator_signin(illness_login)
+    def report(self) -> dict:
         '''
         疫情打卡
-        :param longitude(所在位置经度): float
-        :param latitude(所在位置纬度): float
         :return: dict
         '''
         # 1、获取access_token
-        response = self.signin(illness_login)
-        access_token = re.search(
-            r'access_token=(.*)', response.url, re.S)
+        res = self.signin(illness_login)
+        result = urlparse(res.url)
+        data = {}
+        for item in result.query.split("&"):
+            data[item.split("=")[0]] = item.split("=", maxsplit=2)[-1]
+        res = self.session.post("https://yqfk-daka-api.dgut.edu.cn/auth", json=data)
+        access_token = res.json().get('access_token')
         if not access_token:
             raise ValueError("[参数错误] 获取access_token失败")
-        access_token = access_token.group(1)
         self.session.headers['authorization'] = 'Bearer ' + access_token
+        self.session.headers["Host"] = "yqfk-daka-api.dgut.edu.cn"
 
         # 2、获取并修改数据
         response = self.session.get(
-            'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo')
-        if not response.json()['code'] == 200:
+            'https://yqfk-daka.dgut.edu.cn/record')
+        if not response.status_code == 200:
             raise AuthError("获取个人基本信息失败")
-        data = response.json()['info']
-        if "已连续打卡" in data.get("msg"):
-            return {"code": 400, "message": data.get("msg"), "info": []}
+        data = response.json()
+        if "已打卡" in data.get("message"):
+            return {"message": data.get("message")}
         pop_list = [
-            'can_submit',
-            'class_id',
-            'class_name',
-            'continue_days',
-            'create_time',
-            'current_area',
-            'current_city',
-            'current_country',
-            'current_district',
-            'current_province',
+            'is_en',
+            'is_important_area_people',
+            'created_time',
             'faculty_id',
-            'faculty_name',
-            'id',
-            'msg',
-            'name',
-            'username',
-            'whitelist',
-            'importantAreaMsg',
+            'class_id',
+            'last_submit_time',
+            'off_campus_person_type',
+            'jiguan_district',
+            'huji_district',
+            'remark',
+            'holiday_go_out',
+            'school_connect_person',
+            'school_connect_tel',
+            'have_diagnosis',
+            'diagnosis_result',
+            'processing_method',
+            'important_area',
+            'leave_important_area_time',
+            'last_time_contact_hubei_people',
+            'last_time_contact_illness_people',
+            'end_isolation_time',
+            'plan_back_dg_time',
+            'back_dg_transportation',
+            'plan_details',
+            'finally_plan_details',
+            'recent_travel_situation',
+            'latest_acid_test',
             'acid_test_results',
             'two_week_itinerary',
+            'first_vaccination_date',
+            'plan_vaccination_date',
+            'holiday_travel_situation',
+            'current_district',
+            'gps_district',
+            'change_comment',
+            'is_change',
         ]
+        data = data["user_data"]
         for key in pop_list:
             if key in data:
                 data.pop(key)
 
-        # 获取GPS位置
-        self.session.get("https://yqfk.dgut.edu.cn/home/base_info/getGPSAddress", params={
-            'longitude': longitude,
-            'latitude': latitude})
-
-        # 4、提交数据
+        # 3、提交数据
         response = self.session.post(
-            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
+            "https://yqfk-daka.dgut.edu.cn/record", json={"data": data})
+        response.encoding = 'utf-8'
         return response.json()
 
 
@@ -357,3 +374,7 @@ class dgutJwxt(dgutUser):
             raise HTTPError(f"[HTTP响应错误] HTTP code {response.status_code}")
         for td in etree.HTML(response.text).xpath('//table[position() mod 2 = 0]/tbody/tr'):
             yield td.xpath('./td[position()>1]/text()')
+
+
+
+
