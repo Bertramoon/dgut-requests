@@ -271,7 +271,6 @@ class dgutIllness(dgutUser):
             'plan_details',
             'finally_plan_details',
             'recent_travel_situation',
-            'latest_acid_test',
             'acid_test_results',
             'two_week_itinerary',
             'first_vaccination_date',

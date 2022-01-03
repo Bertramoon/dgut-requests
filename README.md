@@ -671,6 +671,10 @@ except AuthError as e:
 
 # 7. 更新日志
 
+## v1.2 - 2022-1-4
+
+- `dgutIllness`的`report`方法有点小问题，在提交数据前不小心删除了最后一次核酸检测时间选项，本次是修复该小bug
+
 ## v1.1 - 2021-12-22
 
 - `dgutIllness`的`report`方法代码微修改
