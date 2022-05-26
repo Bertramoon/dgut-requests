@@ -164,7 +164,7 @@ from dgut_requests import DgutIllness
 
 u = dgutIllness("201841312111", "123456")
 print(u.report())
-{'message': '您今天已打卡成功！已连续打卡688天！'}
+# {'message': '您今天已打卡成功！已连续打卡688天！'}
 ```
 
 与前面一样，先构造一个`DgutIllness`对象，然后调用`report()`方法即可完成打卡。该功能仅用于爬虫学习及防止忘记打卡，疫情期间切勿轻视打卡。  
@@ -180,7 +180,7 @@ data = {
 
 u = DgutIllness("201841312111", "123456")
 print(u.report(custom_data=data))
-{'message': '您今天已打卡成功！已连续打卡688天！'}
+# {'message': '您今天已打卡成功！已连续打卡688天！'}
 ```
 
 ## 2.5. 获取个人成绩
