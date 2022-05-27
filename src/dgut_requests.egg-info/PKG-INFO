@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: dgut-requests
-Version: 2.0.0
+Version: 2.0.1
 Summary: 用requests等库封装的东莞理工学院相关系统的爬虫脚本库，亦是东莞理工学院第一个pypi的爬虫库
 Home-page: https://github.com/BertraMoon/dgut-requests
 Author: Bertramoon
@@ -179,7 +179,7 @@ from dgut_requests import DgutIllness
 
 u = dgutIllness("201841312111", "123456")
 print(u.report())
-{'message': '您今天已打卡成功！已连续打卡688天！'}
+# {'message': '您今天已打卡成功！已连续打卡688天！'}
 ```
 
 与前面一样，先构造一个`DgutIllness`对象，然后调用`report()`方法即可完成打卡。该功能仅用于爬虫学习及防止忘记打卡，疫情期间切勿轻视打卡。  
@@ -195,7 +195,7 @@ data = {
 
 u = DgutIllness("201841312111", "123456")
 print(u.report(custom_data=data))
-{'message': '您今天已打卡成功！已连续打卡688天！'}
+# {'message': '您今天已打卡成功！已连续打卡688天！'}
 ```
 
 ## 2.5. 获取个人成绩
@@ -339,7 +339,6 @@ JSESSIONID=1811A6B611868FA3529A18214A263E1B.sms9011
 有一个比较好的方案就是可以使用cookies。cookies一般会有一定时长的有效期，在有效期内我们可以把账号密码置空，直接将cookies信息添加到空账号中。这样，当我们模拟访问网页的时候也可以畅行无阻。
 
 ```python
-# "201841416109", "Bertram2dgut"
 from dgut_requests import *
 import re
 import os
@@ -467,6 +466,10 @@ except AuthError as e:
 
 
 # 6. 更新日志
+
+## v2.0.1 - 2022-5-28
+
+- 修改依赖库lxml和requests的版本限制
 
 ## v2.0.0 - 2022-5-27
 

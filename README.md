@@ -324,7 +324,6 @@ JSESSIONID=1811A6B611868FA3529A18214A263E1B.sms9011
 有一个比较好的方案就是可以使用cookies。cookies一般会有一定时长的有效期，在有效期内我们可以把账号密码置空，直接将cookies信息添加到空账号中。这样，当我们模拟访问网页的时候也可以畅行无阻。
 
 ```python
-# "201841416109", "Bertram2dgut"
 from dgut_requests import *
 import re
 import os
@@ -452,6 +451,10 @@ except AuthError as e:
 
 
 # 6. 更新日志
+
+## v2.0.1 - 2022-5-28
+
+- 修改依赖库lxml和requests的版本限制
 
 ## v2.0.0 - 2022-5-27
 

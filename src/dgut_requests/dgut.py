@@ -10,23 +10,6 @@ from requests.exceptions import HTTPError
 
 
 
-
-
-
-
-
-
-def detect_type(detection_name, detection, type_: type):
-    '''
-    类型检测函数，如果符合类型返回该变量，如果不符合类型，则抛出TypeError
-    :param detection: type
-    '''
-    if not isinstance(detection, type_):
-        raise TypeError(
-            f"[变量类型错误] 变量「{detection_name} = {detection}」不能是{type(detection)}类型，请修改为{type_}类型")
-    return detection
-
-
 class AuthError(Exception):
     '''
     认证错误类
