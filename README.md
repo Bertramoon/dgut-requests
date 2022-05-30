@@ -400,7 +400,7 @@ except AuthError as e:
 | -----------------------------------------------------------: | :----------------------------------------------------------- |
 |                                                username: str | DGUT中央认证账号                                             |
 |                                              __password: str | DGUT中央认证密码                                             |
-|                                                 timeout: str | 请求超时时间                                                 |
+|                                                 timeout: int | 请求超时时间                                                 |
 |                                       is_authenticated: bool | 是否已认证                                                   |
 |                           session: requests.sessions.Session | 会话                                                         |
 | \_\_init\_\_(self, username: str, password: str, timeout: int=30) -> None | 构造函数<br />username: DGUT中央认证账号<br />password: DGUT中央认证密码<br />timeout: 请求超时时间 |
