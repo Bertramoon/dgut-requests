@@ -396,14 +396,16 @@ except AuthError as e:
 ```
 
 ## 4.2. class DgutUser
-|                                                属性/方法 | 说明                                                         |
-| -------------------------------------------------------: | :----------------------------------------------------------- |
-|                                            username: str | DGUT中央认证账号                                             |
-|                                          __password: str | DGUT中央认证密码                                             |
-|                       session: requests.sessions.Session | 会话                                                         |
-| \_\_init\_\_(self, username: str, password: str) -> None | 构造函数<br />username: DGUT中央认证账号<br />__password: DGUT中央认证密码 |
-|        signin(self, login_url: str) -> requests.Response | 登录函数，返回结果响应<br />login_url: 登录url，以http://或https://开头 |
-|   decorator_signin(url: str)(func: function) -> function | 登录装饰器                                                   |
+|                                                    属性/方法 | 说明                                                         |
+| -----------------------------------------------------------: | :----------------------------------------------------------- |
+|                                                username: str | DGUT中央认证账号                                             |
+|                                              __password: str | DGUT中央认证密码                                             |
+|                                                 timeout: str | 请求超时时间                                                 |
+|                                       is_authenticated: bool | 是否已认证                                                   |
+|                           session: requests.sessions.Session | 会话                                                         |
+| \_\_init\_\_(self, username: str, password: str, timeout: int=30) -> None | 构造函数<br />username: DGUT中央认证账号<br />password: DGUT中央认证密码<br />timeout: 请求超时时间 |
+|            signin(self, login_url: str) -> requests.Response | 登录函数，返回结果响应<br />login_url: 登录url，以http://或https://开头 |
+|       decorator_signin(url: str)(func: function) -> function | 登录装饰器                                                   |
 
 
 ## 4.3. class DgutXgxt
