@@ -315,11 +315,9 @@ class DgutIllness(DgutUser):
             if key in cloud_data:
                 cloud_data.pop(key)
         
-        if custom_data is None:
+        if not custom_data:
             data = cloud_data
         else:
-            if custom_data.get('data') and len(custom_data) == 1:
-                custom_data = custom_data['data']
             if priority is True:
                 data = {**cloud_data, **custom_data}
             else:

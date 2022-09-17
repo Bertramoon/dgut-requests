@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: dgut-requests
-Version: 2.0.1
+Version: 2.0.2
 Summary: 用requests等库封装的东莞理工学院相关系统的爬虫脚本库，亦是东莞理工学院第一个pypi的爬虫库
 Home-page: https://github.com/BertraMoon/dgut-requests
 Author: Bertramoon
@@ -411,14 +411,16 @@ except AuthError as e:
 ```
 
 ## 4.2. class DgutUser
-|                                                属性/方法 | 说明                                                         |
-| -------------------------------------------------------: | :----------------------------------------------------------- |
-|                                            username: str | DGUT中央认证账号                                             |
-|                                          __password: str | DGUT中央认证密码                                             |
-|                       session: requests.sessions.Session | 会话                                                         |
-| \_\_init\_\_(self, username: str, password: str) -> None | 构造函数<br />username: DGUT中央认证账号<br />__password: DGUT中央认证密码 |
-|        signin(self, login_url: str) -> requests.Response | 登录函数，返回结果响应<br />login_url: 登录url，以http://或https://开头 |
-|   decorator_signin(url: str)(func: function) -> function | 登录装饰器                                                   |
+|                                                    属性/方法 | 说明                                                         |
+| -----------------------------------------------------------: | :----------------------------------------------------------- |
+|                                                username: str | DGUT中央认证账号                                             |
+|                                              __password: str | DGUT中央认证密码                                             |
+|                                                 timeout: int | 请求超时时间                                                 |
+|                                       is_authenticated: bool | 是否已认证                                                   |
+|                           session: requests.sessions.Session | 会话                                                         |
+| \_\_init\_\_(self, username: str, password: str, timeout: int=30) -> None | 构造函数<br />username: DGUT中央认证账号<br />password: DGUT中央认证密码<br />timeout: 请求超时时间 |
+|            signin(self, login_url: str) -> requests.Response | 登录函数，返回结果响应<br />login_url: 登录url，以http://或https://开头 |
+|       decorator_signin(url: str)(func: function) -> function | 登录装饰器                                                   |
 
 
 ## 4.3. class DgutXgxt
@@ -460,12 +462,16 @@ except AuthError as e:
   - [gitee仓库](https://gitee.com/bertramoon/dgut-autoreport-configure)  
   
 - ~~出入校快速申请~~
-  - 目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)  
+  - ~~目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)~~
 
 - 有需求或技术方面的问题请联系作者Email：bertramoon@126.com
 
 
 # 6. 更新日志
+
+## v2.0.2 - 2022-9-17
+
+- 修正了`DgutIllness.report`中用户自定义数据添加的问题，现在只需要以`{ key: value }`方式传入即可
 
 ## v2.0.1 - 2022-5-28
 

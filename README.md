@@ -447,12 +447,16 @@ except AuthError as e:
   - [gitee仓库](https://gitee.com/bertramoon/dgut-autoreport-configure)  
   
 - ~~出入校快速申请~~
-  - 目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)  
+  - ~~目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)~~
 
 - 有需求或技术方面的问题请联系作者Email：bertramoon@126.com
 
 
 # 6. 更新日志
+
+## v2.0.2 - 2022-9-17
+
+- 修正了`DgutIllness.report`中用户自定义数据添加的问题，现在只需要以`{ key: value }`方式传入即可
 
 ## v2.0.1 - 2022-5-28
 

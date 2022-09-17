@@ -17,7 +17,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="dgut_requests",
-    version="2.0.1",
+    version="2.0.2",
     author="Bertramoon",
     author_email="bertramoon@126.com",
     description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库，亦是东莞理工学院第一个pypi的爬虫库",
