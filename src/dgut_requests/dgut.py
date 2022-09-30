@@ -7,7 +7,37 @@ from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import urlparse
 from requests.exceptions import HTTPError
+from bs4 import BeautifulSoup
+from Crypto.Cipher import AES
+import random
+import base64
 
+aes_chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+
+
+def pad(password):  # 把密码补充成符合 AES-128 CBC 规范形式
+    password = random_str(64) + password
+    password_length = len(password)
+    add_count = AES.block_size - password_length % AES.block_size
+    if add_count == 0:
+        add_count = AES.block_size
+    _pad = chr(add_count)
+    return password + _pad * add_count
+
+
+def random_str(length):
+    ret = ""
+    for i in range(length):
+        ret += random.choice(aes_chars)
+    return ret
+
+
+def password_encrypt(user_password, aes_key):
+    iv = random_str(16)
+    user_password = pad(user_password).encode("utf8")
+    aes_key = str(aes_key.strip())
+    cipher = AES.new(aes_key.encode("utf8"), AES.MODE_CBC, iv.encode("utf8"))
+    return base64.b64encode(cipher.encrypt(user_password))
 
 
 class AuthError(Exception):
@@ -27,7 +57,7 @@ class DgutUser(object):
     莞工用户类
     '''
 
-    def __init__(self, username: str, password: str, timeout: int=30) -> None:
+    def __init__(self, username: str, password: str, timeout: int = 30) -> None:
         '''
         :param username(str): 中央认证账号
         :param password(str): 中央认证密码
@@ -49,7 +79,6 @@ class DgutUser(object):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
         }
 
-    
     def signin(self, login_url: str) -> requests.Response:
         '''
         登录函数
@@ -94,7 +123,65 @@ class DgutUser(object):
 
         else:
             return response
-    
+
+    def signin_illness(self, login_url: str) -> requests.Response:
+        '''
+        登录函数
+        :param login_url(str): 系统登录url
+        :return: requests.Response
+        '''
+        # 检查url
+        assert isinstance(login_url, str), '登录URL应为字符串类型'
+        assert re.match(r"^https?://[^\.]{1,}(\.[^\.]{1,})*", str(login_url)), '登录URL应符合HTTP URL的格式规范'
+
+        # 获取登录token
+        response = self.session.get(login_url, timeout=self.timeout)
+        bs4 = BeautifulSoup(response.text, "lxml")
+        encrypt_salt = bs4.find("input", id="pwdEncryptSalt").get("value")
+        execution = bs4.find("input", id="execution").get("value")
+        if encrypt_salt is not None:
+            # 如果获取到登录token，说明还未登录
+            # __token__ = re.search('token = \"(.*?)\"', response.text).group(1)
+            # 发送登录请求
+            self.__password = password_encrypt(self.__password, encrypt_salt)
+            data = {
+                'username': self.username,
+                'password': self.__password,
+                # '__token__': __token__,
+                'captcha': "",
+                '_eventId': "submit",
+                'cllt': "userNameLogin",
+                'dllt': "generalLogin",
+                'lt': "",
+                "pwdEncryptSalt": encrypt_salt,
+                'execution': execution
+            }
+            response = self.session.post(response.url, data=data, timeout=self.timeout)
+            # 各种判断不会写了
+            return response
+            # if not response.status_code == 200:
+            #     raise HTTPError(f"HTTP {response.status_code}错误")
+            # result = response.json()
+            # if result['code'] == 1:
+            #     # 登录成功
+            #     # 认证
+            #     auth_url = result['info']
+            #     auth_response = self.session.get(
+            #         auth_url, timeout=self.timeout)
+            #     if auth_response.status_code == 200:
+            #         # 认证成功
+            #         return auth_response
+            #     else:
+            #         raise AuthError(f'认证{auth_url}失败')
+            # else:
+            #     if result['code'] == 8:
+            #         raise AuthError("密码错误")
+            #     if result['code'] == 15:
+            #         raise AuthError('不存在该用户')
+
+        else:
+            return response
+
     @staticmethod
     def decorator_signin(url: str):
         '''
@@ -102,16 +189,19 @@ class DgutUser(object):
         :param url: str
         :return: function
         '''
+
         def decorator(func):
             wraps(func)
+
             def wrapper(self, *args, **kargs):
                 if self.is_authenticated is False:
                     self.signin(url)
                     self.is_authenticated = True
                 return func(self, *args, **kargs)
-            return wrapper
-        return decorator
 
+            return wrapper
+
+        return decorator
 
 
 class DgutXgxt(DgutUser):
@@ -119,7 +209,8 @@ class DgutXgxt(DgutUser):
     莞工学工系统类
     '''
     xgxt_login = 学工系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/xgxtt.html"
-    def __init__(self, username: str, password: str, timeout: int=30) -> None:
+
+    def __init__(self, username: str, password: str, timeout: int = 30) -> None:
         super().__init__(username, password, timeout)
         self.session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
@@ -129,7 +220,6 @@ class DgutXgxt(DgutUser):
         # 添加登录装饰器
         DgutXgxt.get_workAssignment = DgutUser.decorator_signin(self.xgxt_login)(DgutXgxt.get_workAssignment)
         DgutXgxt.attendance = DgutUser.decorator_signin(self.xgxt_login)(DgutXgxt.attendance)
-
 
     def get_workAssignment(self) -> list:
         '''
@@ -144,7 +234,6 @@ class DgutXgxt(DgutUser):
         works = etree.HTML(response.text).xpath(
             '//div[@class="searchTitle"]/select/option')
         return [(item.xpath('./@value'), item.xpath('./text()')) for item in works[1:]]
-
 
     def attendance(self, flag: int, workAssignmentId: str = None) -> dict:
         '''
@@ -200,8 +289,9 @@ class DgutIllness(DgutUser):
     '''
     莞工疫情防控系统类
     '''
-    illness_login = 疫情防控系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/yqfkdaka/state/%2Fhome.html"
-    def __init__(self, username: str, password: str, timeout: int=30) -> None:
+    illness_login = 疫情防控系统登录 = "https://auth.dgut.edu.cn/authserver/oauth2.0/authorize?response_type=code&client_id=1021534300621787136&redirect_uri=https://yqfk-daka.dgut.edu.cn/new_login/dgut&state=yqfk "
+
+    def __init__(self, username: str, password: str, timeout: int = 30) -> None:
         super().__init__(username, password, timeout)
         self.session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
@@ -209,17 +299,18 @@ class DgutIllness(DgutUser):
             "Referer": "https://yqfk-daka.dgut.edu.cn/",
             # "Host": "yqfk-daka-api.dgut.edu.cn"
         }
-    
 
     def set_authorization(self) -> None:
         """
         设置authorization
         """
-        res = self.signin(self.illness_login)
+        res = self.signin_illness(self.illness_login)
         result = urlparse(res.url)
         data = {}
         for item in result.query.split("&"):
             data[item.split("=")[0]] = item.split("=", maxsplit=2)[-1]
+        # 从url中提取token，其中参数code对应的应该是token
+        data["token"] = data.get("code")
         res = self.session.post("https://yqfk-daka-api.dgut.edu.cn/auth", json=data)
         access_token = res.json().get('access_token')
         if not access_token:
@@ -234,7 +325,6 @@ class DgutIllness(DgutUser):
         if self.session.haeders.get('authorization') is None:
             self.set_authorization()
         return self.session.headers['authorization']
-
 
     def get_record(self) -> dict:
         """
@@ -255,8 +345,7 @@ class DgutIllness(DgutUser):
         self.record = response.json()
         return response.json()
 
-
-    def report(self, custom_data: dict=None, priority: bool=False) -> dict:
+    def report(self, custom_data: dict = None, priority: bool = False) -> dict:
         '''
         疫情打卡
         :param custom_data(dict): 用户自定义数据
@@ -267,11 +356,11 @@ class DgutIllness(DgutUser):
         assert isinstance(priority, bool)
         # 获取云端记录
         record = self.get_record()
-        
+
         # 判断是否已打卡
         if "已打卡" in record.get("message"):
             return {"message": "今日已打卡"}
-        
+
         # 删除多余字段
         pop_list = [
             'is_en',
@@ -314,7 +403,7 @@ class DgutIllness(DgutUser):
         for key in pop_list:
             if key in cloud_data:
                 cloud_data.pop(key)
-        
+
         if not custom_data:
             data = cloud_data
         else:
@@ -322,7 +411,6 @@ class DgutIllness(DgutUser):
                 data = {**cloud_data, **custom_data}
             else:
                 data = {**custom_data, **cloud_data}
-        
 
         # 提交数据
         headers = {"Host": "yqfk-daka-api.dgut.edu.cn"}
@@ -337,14 +425,14 @@ class DgutJwxt(DgutUser):
     莞工教务系统类
     '''
     jwxt_login = 教务系统登录 = "https://cas.dgut.edu.cn/home/Oauth/getToken/appid/jwyd.html"
-    def __init__(self, username: str, password: str, timeout: int=30) -> None:
+
+    def __init__(self, username: str, password: str, timeout: int = 30) -> None:
         super().__init__(username, password, timeout)
         self.session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
             'Host': 'jwyd.dgut.edu.cn',
         }
         DgutJwxt.get_score = DgutUser.decorator_signin(self.jwxt_login)(DgutJwxt.get_score)
-
 
     def get_score(self, score_type: int = 1, course_type: int = 3, time_range: int = 3, **kwargs) -> Generator:
         '''
@@ -359,7 +447,7 @@ class DgutJwxt(DgutUser):
         assert score_type in [1, 2], f'core_type取值只能是1|2，而你的取值为{score_type}'
         assert course_type in [1, 2, 3], f'course_type取值只能是1|2|3，而你的取值为{course_type}'
         assert time_range in [1, 2, 3], f'time_range取值只能是1|2|3，而你的取值为{time_range}'
-        
+
         data = {
             "sjxz": "sjxz" + str(time_range),  # 时间选择，1-入学以来，2-学年，3-学期
             # 原始有效，指原始成绩或有效成绩，yscj-原始成绩，yxcj-有效成绩
@@ -381,14 +469,14 @@ class DgutJwxt(DgutUser):
             if kwargs.get('xn') is not None:
                 xn = kwargs.get('xn')
             else:
-                now = datetime.utcnow()+timedelta(hours=8)
-                xn = now.year if now.month >= 9 else now.year-1
+                now = datetime.utcnow() + timedelta(hours=8)
+                xn = now.year if now.month >= 9 else now.year - 1
 
             if not (isinstance(xn, int) and 1970 <= xn <= 9999):
                 raise ValueError(
                     f"xn的类型应是int且取值范围为[1970, 9999]，而不应该是「{xn}: {type(xn)}」")
             data['xn'] = xn
-            data['xn1'] = xn+1
+            data['xn1'] = xn + 1
 
             if time_range > 2:
                 if kwargs.get('xq') is not None:
@@ -410,7 +498,6 @@ class DgutJwxt(DgutUser):
             raise HTTPError(f"HTTP {response.status_code}错误")
         for td in etree.HTML(response.text).xpath('//table[position() mod 2 = 0]/tbody/tr'):
             yield td.xpath('./td[position()>1]/text()')
-
 
 
 dgutUser = DgutUser
