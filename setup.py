@@ -6,7 +6,7 @@
 # Author: Bertramoon
 # Mail: bertramoon@126.com
 # Created Date:  2021-3-26
-# Modified Date:  2022-5-28
+# Modified Date:  2022-10-5
 #############################################
 
 
@@ -17,7 +17,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="dgut_requests",
-    version="2.0.2",
+    version="2.1.0",
     author="Bertramoon",
     author_email="bertramoon@126.com",
     description="用requests等库封装的东莞理工学院相关系统的爬虫脚本库，亦是东莞理工学院第一个pypi的爬虫库",
@@ -35,5 +35,5 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     python_requires=">=3.7",
-    install_requires=["requests>=2.25.1", "lxml>=4.6.3"]
+    install_requires=["requests>=2.25.1", "lxml>=4.6.3", "pycryptodome>=3.15.0"]
 )
