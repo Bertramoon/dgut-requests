@@ -3,12 +3,14 @@
 [![README](https://img.shields.io/badge/README-Chinese-brightgreen)](https://github.com/BertraMoon/dgut-requests/blob/master/README.md)
 [![GitHub](https://img.shields.io/github/license/bertramoon/dgut-requests)](https://github.com/BertraMoon/dgut-requests/blob/master/LICENSE)  
 
-# 关于即将不再维护本爬虫库的说明
+# ~~关于即将不再维护本爬虫库的说明~~
 
-作者本人已经毕业，没有太多的经历继续维护本爬虫库（且毕业后很多业务的更新需要借号，不好处理）。因此，将最晚于2023年1月1日暂停对本库的维护。
+~~作者本人已经毕业，没有太多的经历继续维护本爬虫库（且毕业后很多业务的更新需要借号，不好处理）。因此，将最晚于2023年1月1日暂停对本库的维护。~~
 
-如果有在校师弟师妹想要继续维护的可以联系我: `bertramoon@126.com`，欢迎接手。
-
+~~如果有在校师弟师妹想要继续维护的可以联系我: `bertramoon@126.com`，欢迎接手。~~
+ 
+目前由不太会Python的[@Rinbili](https://github.com/Rinbili)维护，遇到问题请提交[Issue](https://github.com/Bertramoon/dgut-requests/issues/new)  
+也欢迎有意维护的大佬联系[bertramoon@126.com](mailto:bertramoon@126.com)或[rinbili@vip.qq.com](mailto:rinbili@vip.qq.com)一同维护
 # 0. 前言
 
 dgut-requests是一款适用于东莞理工学院系统的Python库（要求Python3.7及以上版本），主要基于requests库进行再抽象并实现所需功能，采用面向切面编程(AOP)，目前基于该库已做出勤工俭学自动考勤、疫情防控自动打卡、出入校快速申请等小应用。 
