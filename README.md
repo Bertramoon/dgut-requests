@@ -3,15 +3,9 @@
 [![README](https://img.shields.io/badge/README-Chinese-brightgreen)](https://github.com/BertraMoon/dgut-requests/blob/master/README.md)
 [![GitHub](https://img.shields.io/github/license/bertramoon/dgut-requests)](https://github.com/BertraMoon/dgut-requests/blob/master/LICENSE)  
 
-# 关于即将不再维护本爬虫库的说明
-
-作者本人已经毕业，没有太多的经历继续维护本爬虫库（且毕业后很多业务的更新需要借号，不好处理）。因此，将最晚于2023年1月1日暂停对本库的维护。
-
-如果有在校师弟师妹想要继续维护的可以联系我: `bertramoon@126.com`，欢迎接手。
-
 # 0. 前言
 
-dgut-requests是一款适用于东莞理工学院系统的Python库（要求Python3.7及以上版本），主要基于requests库进行再抽象并实现所需功能，采用面向切面编程(AOP)，目前基于该库已做出勤工俭学自动考勤、疫情防控自动打卡、出入校快速申请等小应用。 
+dgut-requests是一款适用于东莞理工学院系统的Python库（要求Python3.7及以上版本），主要基于requests库进行再抽象并实现所需功能，采用面向切面编程(AOP)，目前基于该库已做出勤工俭学自动考勤、~~疫情防控自动打卡~~、出入校快速申请等小应用。 
 
 这是一篇面向编程新手的帮助文档，我会通过例子向你展示这个库的功能。如果你不熟悉dgut-requests库，请从头开始完整阅读本文档，并在自己的电脑上尝试运行一下（PS：演示所使用的操作系统是windows 10）。如果你有编程基础，并且对Python语言比较熟悉，那可以直接阅读[3. 说明文档](#3-说明文档)。 
 
@@ -107,32 +101,7 @@ print(u.attendance(2, 9001))
 这是因为DgutXgxt类中使用python的装饰函数实现AOP面向切面编程，在调用`get_work_assignment()`和`attendance(flag: int, work_assignment_id: int = None)`方法时会自动判断是否已登录、未登录则会先调用`login`方法进行登录认证。
 
 
-## 2.4. 实现每日疫情打卡
-```python
-from dgut_requests import DgutIllness
-
-u = dgutIllness("201841312111", "123456")
-print(u.report())
-# {'message': '您今天已打卡成功！已连续打卡688天！'}
-```
-
-与前面一样，先构造一个`DgutIllness`对象，然后调用`report()`方法即可完成打卡。该功能仅用于爬虫学习及防止忘记打卡，疫情期间切勿轻视打卡。  
-
-因为有些字段（如最后一次核酸时间）学校系统会过几天清空一次，所以会出现打卡成功之后这些字段是空的情况。为了解决这个情况，我们可以自定义字段
-
-```python
-from dgut_requests import DgutIllness
-
-data = {
-    "latest_acid_test": "2022-05-26"
-}
-
-u = DgutIllness("201841312111", "123456")
-print(u.report(custom_data=data))
-# {'message': '您今天已打卡成功！已连续打卡688天！'}
-```
-
-## 2.5. 获取个人成绩
+## 2.4. 获取个人成绩
 ```python
 from dgut_requests import DgutJwxt
 
@@ -241,7 +210,7 @@ for score in u.get_score(time_range=1, score_type=2):
 
 
 ## 3.3. class DgutXgxt
-继承自[3.2](#32-class DgutUser)
+继承自[3.2](#32-class-DgutUser)
 
 |                                                               属性/方法 | 说明                                                                                                                                             |
 |--------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------|
@@ -249,7 +218,7 @@ for score in u.get_score(time_range=1, score_type=2):
 | attendance(self, flag: int, work_assignment_id: int = None) -> dict | 考勤函数，返回一个字典结果<br />flag: 1表示签到，2表示签退<br>work_assignment_id: 考勤职位ID，缺省或None时自动调用get_work_assignment(self)获取第一个职位信息作为参数，若没有任何职位信息则抛出ValueError异常 |
 
 ## 3.4. class DgutIllness
-继承自[3.2](#32-class DgutUser)
+继承自[3.2](#32-class-dgutuser)
 
 |                                                                  属性/方法 | 说明                                                                                                                                                     |
 |-----------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -261,7 +230,7 @@ for score in u.get_score(time_range=1, score_type=2):
 
 
 ## 3.5. class DgutJwxt
-继承自[3.2](#32-class DgutUser)
+继承自[3.2](#32-class-DgutUser)
 
 |                                                                                              属性/方法 | 说明                                                                                                                                                                                                                                       |
 |---------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -284,6 +253,10 @@ for score in u.get_score(time_range=1, score_type=2):
 
 
 # 6. 更新日志
+
+## v2.1.1 - 2022-12-17
+
+- 移除疫情打卡类
 
 ## v2.1.0 - 2022-10-5
 

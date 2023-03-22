@@ -1,13 +1,10 @@
 # coding=utf-8
-import json.decoder
 from typing import Any, NoReturn, Callable
 import re
 from datetime import datetime, timedelta
 from functools import wraps
-from urllib.parse import urlparse
 import base64
 from random import choices
-
 from lxml import etree
 import requests
 from requests.exceptions import HTTPError
@@ -17,8 +14,8 @@ from Crypto.Cipher import AES
 __all__ = [
     "validate_type",
     "LoginError", "AuthError", "ObjectTypeError", "GetAesKeyError", "AESEncryptError",
-    "DgutUser", "DgutXgxt", "DgutIllness", "DgutJwxt",
-    "dgutUser", "dgutXgxt", "dgutIllness", "dgutJwxt"
+    "DgutUser", "DgutXgxt", "DgutJwxt",
+    "dgutUser", "dgutXgxt", "dgutJwxt"
 ]
 
 
@@ -64,7 +61,8 @@ class DgutUser(object):
         self.timeout = timeout
 
         self.session.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/87.0.4280.141 Safari/537.36',
         }
 
     def login(self) -> requests.Response:
@@ -190,7 +188,7 @@ class DgutXgxt(DgutUser):
         headers = {
             "Referer": "https://stu.dgut.edu.cn/student/partwork/attendance_main.jsp"
         }
-        resp = self.session.get("http://stu.dgut.edu.cn/student/partwork/attendance.jsp",
+        resp = self.session.get("https://stu.dgut.edu.cn/student/partwork/attendance.jsp",
                                 timeout=self.timeout,
                                 headers=headers)
         if not resp.status_code == 200:
@@ -255,157 +253,6 @@ class DgutXgxt(DgutUser):
                 'time': attendance_time,
             }
         }
-
-
-class DgutIllness(DgutUser):
-    """莞工疫情防控系统类"""
-
-    # 删除多余字段
-    REPORT_POP_LIST = [
-        'is_en',
-        'is_important_area_people',
-        'created_time',
-        'faculty_id',
-        'class_id',
-        'last_submit_time',
-        'off_campus_person_type',
-        'jiguan_district',
-        'huji_district',
-        'remark',
-        'holiday_go_out',
-        'school_connect_person',
-        'school_connect_tel',
-        'have_diagnosis',
-        'diagnosis_result',
-        'processing_method',
-        'important_area',
-        'leave_important_area_time',
-        'last_time_contact_hubei_people',
-        'last_time_contact_illness_people',
-        'end_isolation_time',
-        'plan_back_dg_time',
-        'back_dg_transportation',
-        'plan_details',
-        'finally_plan_details',
-        'recent_travel_situation',
-        'acid_test_results',
-        'two_week_itinerary',
-        'first_vaccination_date',
-        'plan_vaccination_date',
-        'holiday_travel_situation',
-        'current_district',
-        'gps_district',
-        'change_comment',
-        'is_change',
-    ]
-
-    def __init__(self, username: str, password: str, timeout: int = 30):
-        super().__init__(username, password, timeout)
-        self.session.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                          ' (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
-        }
-
-    def _set_authorization(self):
-        """设置authorization"""
-        self.login()
-        self.is_authenticated = True
-        res = self._auth()
-        try:
-            access_token = res.json().get("access_token")
-        except json.decoder.JSONDecodeError as e:
-            raise AuthError("获取access_token失败") from e
-        self.session.headers['authorization'] = f"Bearer {access_token}"
-
-    def get_authorization(self) -> str:
-        """
-        获取authorization
-
-        :return: str
-        """
-        if self.session.headers.get('authorization') is None:
-            self._set_authorization()
-        return self.session.headers['authorization']
-
-    def get_record(self) -> dict:
-        """
-        获取打卡表单记录
-
-        :return: dict
-        """
-        # 1. 没有登录或http头部没有设置authorization字段
-        if self.is_authenticated is False or self.session.headers.get('authorization') is None:
-            self._set_authorization()
-
-        # 2、获取数据
-        resp = self.session.get('https://yqfk-daka-api.dgut.edu.cn/record/')
-        if not resp.status_code == 200:
-            raise AuthError("获取个人基本信息失败")
-        return resp.json()
-
-    def report(self, custom_data: dict = None, priority: bool = False) -> dict:
-        """
-        疫情打卡
-
-        :param custom_data: 用户自定义数据
-        :param priority: 用户自定义数据是否具有优先级。默认为False，即云端数据覆盖用户自定义数据
-        :return: dict
-        """
-        if custom_data is not None:
-            validate_type(custom_data, dict)
-        validate_type(priority, bool)
-
-        # 获取云端记录
-        record = self.get_record()
-
-        # 判断是否已打卡
-        if "已打卡" in record.get("message"):
-            return {"message": "今日已打卡"}
-
-        # 获取用户数据，删除多余字段
-        cloud_data = record["user_data"]
-        for key in self.REPORT_POP_LIST:
-            if key in cloud_data:
-                cloud_data.pop(key)
-
-        if not custom_data:
-            data = cloud_data
-        else:
-            if priority is True:
-                data = {**cloud_data, **custom_data}
-            else:
-                data = {**custom_data, **cloud_data}
-
-        # 提交数据
-        resp = self.session.post("https://yqfk-daka-api.dgut.edu.cn/record/", json={"data": data})
-        resp.encoding = 'utf-8'
-        return resp.json()
-
-    def _auth(self) -> requests.Response:
-        resp = self.session.get("https://yqfk-daka-api.dgut.edu.cn/new_login")
-        resp = self.session.get(
-            resp.json()["data"].get("url", "https://auth.dgut.edu.cn/authserver/oauth2.0/"
-                                           "authorize?response_type=code"
-                                           "&client_id=1021534300621787136"
-                                           "&redirect_uri=https://yqfk-daka.dgut.edu.cn/"
-                                           "new_login/dgut&state=yqfk"))
-        url_parse = urlparse(resp.url)
-        try:
-            query_data = {
-                item.split("=", 1)[0]: item.split("=", 1)[1]
-                for item in url_parse.query.split("&")
-            }
-        except IndexError as e:
-            raise AuthError("解析URL获取code和state字段失败，请检查返回响应中的URL是否正常") from e
-        try:
-            data = {
-                "token": query_data["code"],
-                "state": query_data["state"]
-            }
-        except KeyError as e:
-            raise AuthError("query_data中不存在code或state字段，请检查query_data是否正常解析") from e
-        resp = self.session.post("https://yqfk-daka-api.dgut.edu.cn/auth", json=data)
-        return resp
 
 
 class DgutJwxt(DgutUser):
@@ -551,5 +398,4 @@ class AESEncryptError(Exception):
 
 dgutUser = DgutUser
 dgutXgxt = DgutXgxt
-dgutIllness = DgutIllness
 dgutJwxt = DgutJwxt
