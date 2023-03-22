@@ -14,7 +14,6 @@ from requests.exceptions import HTTPError
 from Crypto.Util.Padding import pad
 from Crypto.Cipher import AES
 
-
 __all__ = [
     "validate_type",
     "LoginError", "AuthError", "ObjectTypeError", "GetAesKeyError", "AESEncryptError",
@@ -39,7 +38,7 @@ def validate_type(obj: Any, type_: type) -> NoReturn:
 
 class DgutUser(object):
     """莞工用户类"""
-    
+
     LOGIN_URL = "https://auth.dgut.edu.cn/authserver/login"  # 登录URL
     AUTH_URL = ""  # 认证URL
 
@@ -67,7 +66,7 @@ class DgutUser(object):
         self.session.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
         }
-    
+
     def login(self) -> requests.Response:
         """
         登录
@@ -156,6 +155,7 @@ class DgutUser(object):
         :param func: Callable
         :return: Callable
         """
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             if self.is_authenticated is False:
@@ -163,6 +163,7 @@ class DgutUser(object):
                 self.is_authenticated = True
             self._auth()  # 认证
             return func(self, *args, **kwargs)
+
         return wrapper
 
 
@@ -177,7 +178,7 @@ class DgutXgxt(DgutUser):
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)'
                           ' Chrome/87.0.4280.141 Safari/537.36',
         }
-    
+
     @DgutUser.login_decorator
     def get_work_assignment(self) -> list:
         """
@@ -421,7 +422,7 @@ class DgutJwxt(DgutUser):
 
     @DgutUser.login_decorator
     def get_score(self, score_type: int = 1, course_type: int = 3,
-                  time_range: int = 3, **kwargs) -> list:
+                  time_range: int = 1, **kwargs) -> list:
         """
         获取成绩信息
 
@@ -443,7 +444,7 @@ class DgutJwxt(DgutUser):
             raise ValueError('time_range取值只能是1|2|3')
 
         data = {
-            "sjxz": "sjxz" + str(time_range),  # 时间选择，1-入学以来，2-学年，3-学期
+            "sjxz": "sjxz" + str(time_range),  # 时间选择，1-入学以来（默认），2-学年，3-学期
             # 原始有效，指原始成绩或有效成绩，yscj-原始成绩，yxcj-有效成绩
             "ysyx": "yscj" if score_type == 1 else "yxcj",
             # course_type -> 1: 主修 2: 辅修 3: 主修和辅修（默认）
@@ -462,7 +463,7 @@ class DgutJwxt(DgutUser):
         }
         if time_range > 1:
             xn = kwargs.get("xn")
-            now = datetime.utcnow()+timedelta(hours=8)
+            now = datetime.utcnow() + timedelta(hours=8)
             if xn is None:
                 xn = now.year if now.month >= 9 else now.year - 1
             validate_type(xn, int)
@@ -482,7 +483,8 @@ class DgutJwxt(DgutUser):
 
         # 发送请求
         resp = self.session.post("https://jw.dgut.edu.cn/student/xscj.stuckcj_data.jsp",
-                                 headers={"Content-Type": "application/x-www-form-urlencoded"},
+                                 headers={"Content-Type": "application/x-www-form-urlencoded",
+                                          'Referer': 'https://jw.dgut.edu.cn/student/xscj.stuckcj.jsp?menucode=S40303'},
                                  data=data)
 
         # 解析
