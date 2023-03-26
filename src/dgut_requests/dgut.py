@@ -268,6 +268,27 @@ class DgutJwxt(DgutUser):
         }
 
     @DgutUser.login_decorator
+    def get_lesson(self, xn: int = 2022, xq: int = 0) -> list:
+        validate_type(xn, int)
+        validate_type(xq, int)
+        if xq not in (0, 1):
+            raise ValueError('xq取值只能是0|1')
+
+        # 获取教务系统xh
+        temp = self.session.get('https://jw.dgut.edu.cn/custom/js/SetRootPath.jsp')
+        xh = re.search(r"G_USER_CODE = '(.*?)'.*", temp.text).group(1)
+
+        # base64加密字符串
+        params = base64.b64encode(('xn=' + str(xn) + '&xq=' + str(xq) + '&xh=' + str(xh)).encode('utf-8')).decode(
+            'utf-8')
+        result = self.session.get('https://jw.dgut.edu.cn/student/wsxk.xskcb10319.jsp?params=' + params,
+                                  headers={
+                                      'Referer': 'https://jw.dgut.edu.cn/student/xkjg.wdkb.jsp?menucode=S40303'},
+                                  )
+        # 数据未处理
+        return result.text
+
+    @DgutUser.login_decorator
     def get_score(self, score_type: int = 1, course_type: int = 3,
                   time_range: int = 1, **kwargs) -> list:
         """
@@ -329,7 +350,7 @@ class DgutJwxt(DgutUser):
                 data['xq'] = xq
 
         # 发送请求
-        resp = self.session.post("https://jw.dgut.edu.cn/student/xscj.stuckcj_data.jsp",
+        resp = self.session.post(url="https://jw.dgut.edu.cn/student/xscj.stuckcj_data.jsp",
                                  headers={"Content-Type": "application/x-www-form-urlencoded",
                                           'Referer': 'https://jw.dgut.edu.cn/student/xscj.stuckcj.jsp?menucode=S40303'},
                                  data=data)
@@ -341,6 +362,63 @@ class DgutJwxt(DgutUser):
         for td in etree.HTML(resp.text).xpath('//table[position() mod 2 = 0]/tbody/tr'):
             result.append(td.xpath('./td[position()>1]/text()'))
         return result
+
+
+class DgutDs(DgutUser):
+    """订水系统类 未完成"""
+
+    AUTH_URL = "https://ds.dgut.edu.cn/admin/oauth/login?state=h5"
+
+    def __init__(self, username: str, password: str, timeout: int = 30):
+        super().__init__(username, password, timeout)
+        self.session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                          ' (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+        }
+
+    def get_barrel_list(self):
+        resp = self.session.get(url="https://ds.dgut.edu.cn/home/Distribution/getBarrelListByUser?",
+                                headers={"referer": "https://ds.dgut.edu.cn/selectBrand"}
+                                ).json()
+        if not resp.get('code') == 1000:
+            raise AuthError
+        result = resp['info']
+        return result
+
+    def get_distribution_pre(self, area_id: int, building_id: int, campus_id: int, room_number: int):
+        data = {'area_id': area_id,
+                'building_id': building_id,
+                'campus_id': campus_id,
+                'room_number': room_number}
+        resp = self.session.post(url="https://ds.dgut.edu.cn/home/Distribution/getDistributionPre",
+                                 data=data)
+
+    def check_pay(self, price: int):
+        """
+        检查余额是否足够用于支付
+        Args:
+            price: 价格
+
+        Returns:
+            bool
+        """
+        data = {'total_price': price}
+        resp = self.session.post(url="https://ds.dgut.edu.cn/home/Pay/checkPay",
+                                 data=data)
+        if not resp.json().get('message') == "可以支付":
+            return False
+        return True
+
+    def add_distribution(self, area_id: int, building_id: int, campus_id: int, room_number: int, barrel_id: int,
+                         phone: int):
+        data = {"campus_id": campus_id,
+                "area_id": area_id,
+                "building_id": building_id,
+                "room_number": room_number,
+                "barrel_id": barrel_id,
+                "send_num": 1,
+                "phone": phone,
+                "password": ""}
 
 
 class LoginError(Exception):
