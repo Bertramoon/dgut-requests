@@ -268,7 +268,7 @@ class DgutJwxt(DgutUser):
         }
 
     @DgutUser.login_decorator
-    def get_lesson(self, xn: int = 2022, xq: int = 0) -> list:
+    def get_lesson(self, xn: int = 2022, xq: int = 0):
         validate_type(xn, int)
         validate_type(xq, int)
         if xq not in (0, 1):

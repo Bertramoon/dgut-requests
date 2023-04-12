@@ -242,9 +242,9 @@ for score in u.get_score(time_range=1, score_type=2):
   - [github仓库](https://github.com/Bertramoon/DGUT-Auto-Attendance)  
   - [gitee仓库](https://gitee.com/bertramoon/Auto_Attendance)  
 
-- 疫情防控自动打卡  
-  - [github仓库](https://github.com/Bertramoon/DGUT-Auto-Report)  
-  - [gitee仓库](https://gitee.com/bertramoon/dgut-autoreport-configure)  
+- ~~疫情防控自动打卡~~  
+  - ~~[github仓库](https://github.com/Bertramoon/DGUT-Auto-Report)~~  
+  - ~~[gitee仓库](https://gitee.com/bertramoon/dgut-autoreport-configure)~~  
   
 - ~~出入校快速申请~~
   - ~~目前基于QT5和dgut-requests开发了PC端的GUI程序，具有记住账号密码和表单的功能，可用于快速申请，[gitee仓库地址](https://gitee.com/bertramoon/dgut-leave-application)~~
@@ -253,6 +253,10 @@ for score in u.get_score(time_range=1, score_type=2):
 
 
 # 6. 更新日志
+
+## v2.1.2 - 2023-04-12
+
+- 修正教务系统类，添加查询课表
 
 ## v2.1.1 - 2022-12-17
 
